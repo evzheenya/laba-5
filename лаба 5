@@ -1,0 +1,39 @@
+#include <iostream>
+#include <vector>
+int main() {
+    setlocale(LC_ALL, "Russian");
+    int n, m;
+    std::cout << "введите количество строк: "; std::cin >> n;
+    std::cout << "введите количество столбцов: "; std::cin >> m;
+    std::vector<std::vector<int>> mt(n, std::vector<int>(m));
+    std::cout << "введите элементы матрицы:" << "\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            std::cin >> mt[i][j];
+        } 
+    }
+    std::cout << "\n";
+    std::vector<int> b(n);
+    for (int i = 0; i < n; i++) {
+        bool isDecreasing = true;
+        for (int j = 1; j < m; j++) {
+            if (mt[i][j] > mt[i][j - 1]) {
+                isDecreasing = false;
+                break;
+            }
+        }
+        b[i] = isDecreasing ? 1 : 0;
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            std::cout << mt[i][j] << " ";
+        }
+ 
+        std::cout << std::endl;
+    }
+    std::cout << "\n";
+    for (int i = 0; i < n; i++) {
+        std::cout << "строка № " << i << ": " << b[i] << std::endl;
+    }
+    return 0;
+}
