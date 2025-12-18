@@ -39,7 +39,6 @@ int main() {
             r.push_back(p);
         }
     }
-    sort(r.begin(), r.end(), compareByName);
     std::cout << "Товары, хранящиеся больше месяца и стоимостью больше 100000 руб.:\n";
     if (r.empty()) {
         std::cout << "Таких товаров нет\n";
