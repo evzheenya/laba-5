@@ -1,0 +1,40 @@
+#include <iostream>
+#include <string>
+#include <climits>
+int main() {
+    setlocale(LC_ALL, "Russian");
+    std::string s;   
+    std::cout << "Введите строку из групп нулей и единиц: ";
+    std::getline(std::cin, s);
+    int min = INT_MAX;
+    int n = -1;
+    int l = 0;
+    int pn = -1;
+    for (size_t i = 0; i <= s.length(); i++) {
+        if (i < s.length() && (s[i] == '0' || s[i] == '1')) {
+            if (l == 0) {
+                pn = i;
+            }
+            l++;
+        }
+        else {
+            if (l > 0) {
+                if (l < min) {
+                    min = l;
+                    n = pn;
+                }
+                l = 0;
+            }
+        }
+    }
+    if (min != INT_MAX) {
+        std::string sh = s.substr(n, min);
+        std::cout << "Самая короткая группа: " << sh << "\n";
+        std::cout << "Длина: " << min;
+    }
+    else {
+        std::cout << "В строке нет групп нулей и единиц";
+    }
+
+    return 0;
+}
