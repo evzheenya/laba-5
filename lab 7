@@ -1,0 +1,58 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+struct Product {
+    std::string name;
+    int kol;
+    double pr;
+    int m;  
+    int y;   
+    Product(std::string n, int k, double p, int m, int y)
+        : name(n), kol(k), pr(p), m(m), y(y) {
+    }
+    double totalCost() const {
+        return kol * pr;
+    }
+    bool storedMoreThanMonth(int currentMonth, int currentYear) const {
+        int d = (currentYear - y) * 12 + (currentMonth - m);
+        return d > 1;
+    }
+};
+bool compareByName(const Product& a, const Product& b) {
+    return a.name < b.name;
+}
+int main() {
+    setlocale(LC_ALL, "Russian");
+    std::vector<Product> products = {
+        {"Соль", 98, 3000, 1, 2024},
+        {"Хлеб", 253, 79, 11, 2024},
+        {"Сыр", 75, 4500, 10, 2024},
+        {"Бананы", 200, 1200, 12, 2024},
+        {"Молоко", 53, 120, 9, 2024},
+    };
+    int cm = 12;
+    int cy = 2024;
+    std::vector<Product> r;
+    for (const auto& p : products) {
+        if (p.storedMoreThanMonth(cm, cy) && p.totalCost() > 100000) {
+            r.push_back(p);
+        }
+    }
+    sort(r.begin(), r.end(), compareByName);
+    std::cout << "Товары, хранящиеся больше месяца и стоимостью больше 100000 руб.:\n";
+    if (r.empty()) {
+        std::cout << "Таких товаров нет\n";
+    }
+ else {
+  for (const auto& p : r) {
+      std::cout << "\nНаименование: " << p.name << "\n";
+      std::cout << "Количество: " << p.kol << " ед." << "\n";
+      std::cout << "Цена: " << p.pr << " руб." << "\n";
+      std::cout << "Общая стоимость: " << p.totalCost() << " руб." << "\n";
+      std::cout << "Поступил: " << p.m << "/" << p.y;
+      std::cout << "\n";
+  }
+}
+return 0;
+}
