@@ -1,0 +1,49 @@
+#include <iostream>
+#include <iomanip>   
+#include <cmath>
+long double factorial(int n) {    
+    long double result = 1.0;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}std::pair<long double, int> sin_x_over_x_series(long double x, long double epsilon) {       
+    if (x == 0.0) {
+        return std::make_pair(1.0, 0);
+    }
+    long double sum = 1.0; 
+    long double term = 1.0;
+    int k = 0;
+    int iterations = 0;
+    do {
+        k++;
+        term = pow(-1, k) * pow(x, 2 * k) / factorial(2 * k + 1);       
+        sum += term;
+        iterations++;
+    } while (fabs(term) >= epsilon);
+    return std::make_pair(sum, iterations);
+}
+int main() {
+    setlocale(LC_ALL, "Russian");
+    const long double epsilon = pow(10,-5);
+    const long double start = 0.0;
+    const long double end = 1.0;
+    const long double step = 0.1;
+    std::cout << std::setw(10) << "x" << std::setw(20) << "Y(x)" << std::setw(20) << "S(x)" << std::setw(15) << "Итерации" << std::setw(20) << "Разница" << "\n" ;
+    std::cout << std::fixed << std::setprecision(6);
+    for (long double x = start; x <= end + 1e-9; x += step) {
+        long double library_value;
+        if (fabs(x) < 1e-10) { 
+            library_value = 1.0;
+        }
+        else {
+            library_value = sin(x) / x;
+        }
+        auto result = sin_x_over_x_series(x, epsilon);
+        long double series_value = result.first;
+        int iterations = result.second;
+        long double difference = fabs(library_value - series_value);
+        std::cout << std::setw(10) << x << std::setw(20) << library_value << std::setw(20) << series_value << std::setw(15) << iterations << std::setw(20) << difference << "\n";
+    }
+    return 0;
+}
