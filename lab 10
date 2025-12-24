@@ -1,0 +1,28 @@
+#include <windows.h>
+#include <stdio.h>
+int main(){
+    HWND hwnd = GetConsoleWindow();
+    int x = 50;
+    while (1) {
+        HDC hdc = GetDC(hwnd);
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+        HBRUSH white = (HBRUSH)GetStockObject(BLACK_BRUSH);
+        FillRect(hdc, &rect, white);
+        HPEN pen = CreatePen(PS_SOLID, 10, RGB(255, 0, 0));
+        HBRUSH null_brush = (HBRUSH)GetStockObject(NULL_BRUSH);
+        HBRUSH old_brush = (HBRUSH)SelectObject(hdc, null_brush);
+        HPEN old_pen = (HPEN)SelectObject(hdc, pen);
+        SelectObject(hdc, pen);
+        Rectangle(hdc, x, 200, x + 100, 100);
+        DeleteObject(pen);
+        ReleaseDC(hwnd, hdc);
+        InvalidateRect(hwnd, NULL, TRUE);
+        UpdateWindow(hwnd);
+        x += 5;
+        if (x > 700) x = 50;
+        Sleep(16);
+    }
+    getchar();
+    return 0;
+}
