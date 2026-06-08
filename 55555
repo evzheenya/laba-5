@@ -1,0 +1,41 @@
+import argparse
+import csv
+import os
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-i", "--input", required=True)
+parser.add_argument("-o", "--output")
+parser.add_argument("-v", "--verbose", action="store_true")
+parser.add_argument("mode", choices=["rows", "cols"])
+
+args = parser.parse_args()
+
+try:
+    with open(args.input, newline="", encoding="utf-8") as f:
+        matrix = list(csv.reader(f))
+except FileNotFoundError:
+    print(f"Ошибка: файл '{args.input}' не найден!")
+    exit(1)
+
+if args.mode == "rows":
+    matrix.reverse()
+elif args.mode == "cols":
+    matrix = [row[::-1] for row in matrix]
+
+if args.verbose:
+    print(f"\nИсходная матрица ({len(matrix)} × {len(matrix[0])}):\n")
+    for row in matrix:
+        print(", ".join(row))
+
+if args.output is None:
+    base, ext = os.path.splitext(args.input)
+    output_file = base + "_out.csv"
+else:
+    output_file = args.output
+
+with open(output_file, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerows(matrix)
+
+print(f"\nМатрица перевернута по {args.mode}.\nРезультат в {output_file}")
