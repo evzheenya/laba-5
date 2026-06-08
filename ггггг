@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+import csv
+import sys
+import argparse
+from pathlib import Path
+
+def main():
+    # Разбор аргументов командной строки
+    parser = argparse.ArgumentParser(
+        description="Суммирует элементы всех строк CSV поэлементно"
+    )
+    parser.add_argument("input_file", help="Путь до входного CSV-файла")
+    parser.add_argument("output_file", help="Путь до выходного CSV-файла")
+    parser.add_argument("-n", type=int, default=0, help="Номер строки для суммы (по умолчанию: 0)")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Тихий режим (подавление ошибок)")
+    args = parser.parse_args()
+
+    # Проверка существования входного файла ДО попытки чтения
+    if not Path(args.input_file).exists():
+        if not args.quiet:
+            print(f"Ошибка: Файл '{args.input_file}' не существует", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        # Чтение CSV
+        with open(args.input_file, 'r', newline='', encoding='utf-8') as f:
+            rows = list(csv.reader(f))
+        
+        if not rows:
+            if not args.quiet:
+                print("Ошибка: Файл пуст", file=sys.stderr)
+            sys.exit(1)
+        
+        # Преобразование в числа (ИСПРАВЛЕНО: правильное определение float)
+        numeric_rows = []
+        for row in rows:
+            num_row = []
+            for val in row:
+                val = val.strip()  # Удаляем пробелы
+                if not val:  # Пустая строка = 0
+                    num_row.append(0)
+                else:
+                    try:
+                        # Пробуем int
+                        num_row.append(int(val))
+                    except ValueError:
+                        try:
+                            # Пробуем float
+                            num_row.append(float(val))
+                        except ValueError:
+                            # Не число
+                            num_row.append(0)
+                            if not args.quiet:
+                                print(f"Предупреждение: '{val}' заменено на 0", file=sys.stderr)
+            numeric_rows.append(num_row)
+        
+        # Проверка одинаковой длины строк
+        if not numeric_rows:
+            if not args.quiet:
+                print("Ошибка: Нет данных после преобразования", file=sys.stderr)
+            sys.exit(1)
+            
+        cols = len(numeric_rows[0])
+        for i, row in enumerate(numeric_rows):
+            if len(row) != cols:
+                if not args.quiet:
+                    print(f"Ошибка: Строка {i} имеет длину {len(row)}, ожидалось {cols}", file=sys.stderr)
+                sys.exit(1)
+        
+        # Вычисление сумм по столбцам
+        sums = [0] * cols
+        for row in numeric_rows:
+            for j in range(cols):
+                sums[j] += row[j]
+        
+        # Вставка суммы в указанную строку (ИСПРАВЛЕНО: проверка на отрицательный индекс)
+        if args.n < 0:
+            if not args.quiet:
+                print(f"Ошибка: Номер строки {args.n} не может быть отрицательным", file=sys.stderr)
+            sys.exit(1)
+            
+        if args.n >= len(numeric_rows):
+            # Добавляем недостающие строки
+            for _ in range(args.n - len(numeric_rows) + 1):
+                numeric_rows.append([0] * cols)
+        
+        numeric_rows[args.n] = sums
+        
+        # Запись результата
+        with open(args.output_file, 'w', newline='', encoding='utf-8') as f:
+            csv.writer(f).writerows(numeric_rows)
+        
+        if not args.quiet:
+            print(f"Готово! Суммы записаны в строку {args.n}")
+    
+    except PermissionError:
+        if not args.quiet:
+            print(f"Ошибка: Нет доступа к файлу", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        if not args.quiet:
+            print(f"Ошибка: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
