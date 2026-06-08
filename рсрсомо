@@ -1,0 +1,52 @@
+import argparse
+import csv
+import os
+from pathlib import Path
+
+def generate_output_filename(input_file):
+    """Генерирует имя выходного файла: <имя_входного>_out.csv"""
+    input_path = Path(input_file)
+    return input_path.stem + '_out.csv'  # stem - имя без расширения
+
+def process_csv(input_file, output_file=None):
+    """Пример обработки CSV-файла"""
+    # Если выходной файл не указан, генерируем автоматически
+    if output_file is None:
+        output_file = generate_output_filename(input_file)
+    
+    print(f"Входной файл: {input_file}")
+    print(f"Выходной файл: {output_file}")
+    
+    # Пример: читаем входной CSV и копируем в выходной
+    try:
+        with open(input_file, 'r', newline='', encoding='utf-8') as infile:
+            reader = csv.reader(infile)
+            data = list(reader)
+        
+        # Здесь можно делать любую обработку данных
+        # Например, преобразование, фильтрацию и т.д.
+        
+        with open(output_file, 'w', newline='', encoding='utf-8') as outfile:
+            writer = csv.writer(outfile)
+            writer.writerows(data)
+        
+        print(f"✅ Успешно сохранено в {output_file}")
+    
+    except FileNotFoundError:
+        print(f"❌ Ошибка: Файл {input_file} не найден")
+    except Exception as e:
+        print(f"❌ Ошибка: {e}")
+
+def main():
+    parser = argparse.ArgumentParser(description='Обработка CSV-файла')
+    parser.add_argument('input', help='Путь до входного CSV-файла')
+    parser.add_argument('-o', '--output', 
+                       help='Путь до выходного CSV-файла. '
+                            'Если не указан – генерируется автоматически '
+                            '(<имя_входного>_out.csv)')
+    
+    args = parser.parse_args()
+    process_csv(args.input, args.output)
+
+if __name__ == '__main__':
+    main()
